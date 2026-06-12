@@ -1,0 +1,14 @@
+{
+  "title": "Parcel Aggregator",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Parcel Aggregator",
+        "description": "Combines parcel counts and next-delivery timestamps from the installed DHL, PostNL, and DPD integrations into a single set of sensors. Click Submit to add."
+      }
+    },
+    "abort": {
+      "already_configured": "Parcel Aggregator is already set up."
+    }
+  }
+}

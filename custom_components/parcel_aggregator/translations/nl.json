@@ -1,0 +1,14 @@
+{
+  "title": "Pakket-aggregator",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pakket-aggregator",
+        "description": "Combineert pakketaantallen en eerstvolgende bezorgmomenten van de geïnstalleerde DHL-, PostNL- en DPD-integraties in één set sensoren. Klik op Verzenden om toe te voegen."
+      }
+    },
+    "abort": {
+      "already_configured": "De pakket-aggregator is al ingesteld."
+    }
+  }
+}
