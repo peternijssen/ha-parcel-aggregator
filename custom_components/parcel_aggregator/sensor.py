@@ -60,6 +60,9 @@ class _BaseListSensor(CoordinatorEntity[ParcelAggregatorCoordinator], SensorEnti
     _attr_has_entity_name = True
     _attr_native_unit_of_measurement = "parcels"
     _attr_state_class = SensorStateClass.MEASUREMENT
+    # Either "parcels" or "shipments" is set per subclass; listing both is
+    # harmless since unknown keys are simply ignored by the recorder.
+    _unrecorded_attributes = frozenset({"parcels", "shipments"})
     _bucket: str = ""
     _list_attr: str = "parcels"
 
