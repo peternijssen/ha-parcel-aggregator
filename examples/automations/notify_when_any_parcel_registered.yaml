@@ -1,0 +1,29 @@
+# Notify when any carrier announces a new parcel.
+#
+# Uses the unified parcel_aggregator_parcel_registered event, so this one
+# automation covers every carrier the aggregator knows about — no need
+# for separate per-carrier copies.
+
+alias: "Parcel: new parcel registered (any carrier)"
+description: Notify when any carrier announces a new parcel.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: parcel_aggregator_parcel_registered
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "Pakket onderweg ({{ trigger.event.data.carrier }})"
+      message: >-
+        {{ trigger.event.data.sender }} – verwacht
+        {% if trigger.event.data.planned_from %}
+        {{ as_timestamp(trigger.event.data.planned_from)
+           | timestamp_custom('%a %-d %b') }}
+        {% else %}
+        binnenkort
+        {% endif %}
+      data:
+        clickAction: "{{ trigger.event.data.url }}"

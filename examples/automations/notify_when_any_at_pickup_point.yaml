@@ -1,0 +1,27 @@
+# Notify when a parcel arrives at any pickup point — DHL ServicePoint,
+# PostNL Point, or DPD ParcelShop — ready for collection.
+#
+# Triggers on the canonical AT_PICKUP_POINT status. Each carrier maps
+# its own raw "ready to collect" status onto this enum value, so one
+# automation handles all three.
+
+alias: "Parcel: ready at pickup point (any carrier)"
+description: Notify when any parcel arrives at a pickup point for collection.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: parcel_aggregator_parcel_status_changed
+    event_data:
+      new_status: at_pickup_point
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "Pakket klaar voor afhalen ({{ trigger.event.data.carrier }})"
+      message: >-
+        {{ trigger.event.data.sender }} ligt klaar bij
+        {{ trigger.event.data.pickup_point or 'het afhaalpunt' }}.
+      data:
+        clickAction: "{{ trigger.event.data.url }}"

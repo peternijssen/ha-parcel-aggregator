@@ -1,0 +1,24 @@
+# Notify exactly once per parcel when any carrier says it's on the
+# delivery vehicle today. Filters on the canonical ParcelStatus value
+# `out_for_delivery`, so this is independent of carrier-specific raw
+# status strings.
+
+alias: "Parcel: out for delivery (any carrier)"
+description: Notify when any parcel goes out for delivery today.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: parcel_aggregator_parcel_status_changed
+    event_data:
+      new_status: out_for_delivery
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "Pakket onderweg vandaag ({{ trigger.event.data.carrier }})"
+      message: >-
+        {{ trigger.event.data.sender }} – {{ trigger.event.data.barcode }}
+      data:
+        clickAction: "{{ trigger.event.data.url }}"

@@ -1,0 +1,24 @@
+# Speak the expected delivery window for the next active parcel across
+# every carrier, one hour before the planned_from timestamp. Uses the
+# aggregator's Next delivery sensor directly instead of an event.
+
+alias: "Parcel: announce next delivery (any carrier)"
+description: Speak the next aggregated delivery window an hour before it opens.
+mode: single
+
+triggers:
+  - trigger: template
+    value_template: >-
+      {% set when = states('sensor.parcel_aggregator_next_delivery') %}
+      {% if when not in ('unknown', 'unavailable') %}
+        {{ (as_datetime(when) - now()).total_seconds() | int == 3600 }}
+      {% endif %}
+
+actions:
+  - action: tts.cloud_say
+    data:
+      entity_id: media_player.living_room
+      message: >-
+        Pakket onderweg, verwacht rond
+        {{ as_datetime(states('sensor.parcel_aggregator_next_delivery'))
+           .strftime('%H:%M') }}.
