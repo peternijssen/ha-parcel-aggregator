@@ -123,10 +123,10 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=entry,
             name=DOMAIN,
             update_interval=None,
         )
-        self._entry = entry
         # bucket -> {entity_id: carrier_platform}
         self._sources: dict[str, dict[str, str]] = {
             bucket: {} for bucket in SOURCE_SUFFIXES.values()
