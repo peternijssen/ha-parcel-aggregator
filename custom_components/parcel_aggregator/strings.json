@@ -14,16 +14,20 @@
   "entity": {
     "sensor": {
       "incoming": {
-        "name": "Incoming"
+        "name": "Incoming",
+        "unit_of_measurement": "parcels"
       },
       "outgoing": {
-        "name": "Outgoing"
+        "name": "Outgoing",
+        "unit_of_measurement": "shipments"
       },
       "delivered": {
-        "name": "Delivered"
+        "name": "Delivered",
+        "unit_of_measurement": "parcels"
       },
       "awaiting_pickup": {
-        "name": "Awaiting pickup"
+        "name": "Awaiting pickup",
+        "unit_of_measurement": "parcels"
       },
       "next_delivery": {
         "name": "Next delivery"

@@ -14,16 +14,20 @@
   "entity": {
     "sensor": {
       "incoming": {
-        "name": "Binnenkomend"
+        "name": "Binnenkomend",
+        "unit_of_measurement": "pakketten"
       },
       "outgoing": {
-        "name": "Uitgaand"
+        "name": "Uitgaand",
+        "unit_of_measurement": "zendingen"
       },
       "delivered": {
-        "name": "Bezorgd"
+        "name": "Bezorgd",
+        "unit_of_measurement": "pakketten"
       },
       "awaiting_pickup": {
-        "name": "Klaar voor afhalen"
+        "name": "Klaar voor afhalen",
+        "unit_of_measurement": "pakketten"
       },
       "next_delivery": {
         "name": "Eerstvolgende bezorging"
