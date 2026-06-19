@@ -18,10 +18,9 @@ you only "know" from training data.
 | Config flow, options flow, reauth, reconfigure | https://developers.home-assistant.io/docs/config_entries_config_flow_handler |
 | DataUpdateCoordinator pattern | https://developers.home-assistant.io/docs/integration_fetching_data |
 | Quality scale rules | https://developers.home-assistant.io/docs/core/integration-quality-scale |
-| Diagnostics | https://developers.home-assistant.io/docs/integration_diagnostics |
+| Diagnostics | https://developers.home-assistant.io/docs/core/integration/diagnostics |
 | Repair issues | https://developers.home-assistant.io/docs/core/platform/repairs |
 | Translations (entity names, issues, exceptions) | https://developers.home-assistant.io/docs/internationalization/core |
-| Brand registration | https://developers.home-assistant.io/docs/creating_integration_brand |
 
 ### Recent developer-facing changes
 
@@ -55,6 +54,30 @@ re-propose these as improvements:
   base list sensor — the aggregated lists are kept out of the recorder
   long-term tables
 
+### Adopted in 1.0.0 (do not refactor away)
+
+- **Canonical `ParcelStatus` enum** in `const.py` — mirrors the enum
+  the per-carrier integrations (DHL, DPD, PostNL) publish on the
+  `status` field of each normalised parcel. Kept in sync across all
+  four repositories so cross-carrier automations can target
+  `status: out_for_delivery` regardless of source.
+- **Carrier event re-emit layer** — the coordinator subscribes to
+  every `<prefix>_parcel_registered` / `<prefix>_parcel_status_changed`
+  event published by carriers listed in `CARRIER_EVENT_PREFIXES` and
+  re-fires them as `parcel_aggregator_parcel_registered` /
+  `parcel_aggregator_parcel_status_changed`. Carrier-specific `raw`
+  payload is stripped to keep events small. To onboard a new carrier
+  that ships the canonical event contract, add its HA domain to
+  `CARRIER_EVENT_PREFIXES` — no other change needed.
+- **Translated unit of measurement** — `entity.sensor.<key>.unit_of_measurement`
+  in strings/translations. `_attr_native_unit_of_measurement` is
+  intentionally absent from the sensor classes. Dutch users see
+  `pakketten` / `zendingen` instead of the literal English.
+- **Skipped confirm form in config flow** — single-call create, no
+  empty form first.
+- **Coordinator `config_entry=entry` kwarg** — passed to
+  `super().__init__()`; `self.config_entry` provided by the base class.
+
 ## What was deliberately skipped
 
 - **No `_attr_attribution`**: the aggregator does not talk to any single
@@ -87,4 +110,5 @@ re-propose these as improvements:
 python -m pytest tests/ --cov=custom_components.parcel_aggregator
 ```
 
-Coverage is currently 98%. Gold tier targets ≥95% — keep it above 95%.
+Coverage must stay **above 95%** (gold-tier target). Run before
+committing.
