@@ -6,13 +6,21 @@ from datetime import datetime
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import ATTR_KEY_BY_BUCKET, DOMAIN, KNOWN_CARRIERS, SOURCE_SUFFIXES
+from .const import (
+    ATTR_KEY_BY_BUCKET,
+    CARRIER_EVENT_PREFIXES,
+    DOMAIN,
+    EVENT_PARCEL_REGISTERED,
+    EVENT_PARCEL_STATUS_CHANGED,
+    KNOWN_CARRIERS,
+    SOURCE_SUFFIXES,
+)
 
 NO_SOURCES_ISSUE_ID = "no_sources"
 
@@ -124,6 +132,7 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             bucket: {} for bucket in SOURCE_SUFFIXES.values()
         }
         self._unsub_listener: CALLBACK_TYPE | None = None
+        self._unsub_event_listeners: list[CALLBACK_TYPE] = []
 
     async def async_setup(self) -> None:
         """Discover source entities and subscribe to their state changes."""
@@ -153,12 +162,49 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "carriers": ", ".join(KNOWN_CARRIERS.values()),
                 },
             )
+        self._subscribe_carrier_events()
         self.async_set_updated_data(self._compute())
 
     async def async_shutdown(self) -> None:
         if self._unsub_listener is not None:
             self._unsub_listener()
             self._unsub_listener = None
+        for unsub in self._unsub_event_listeners:
+            unsub()
+        self._unsub_event_listeners.clear()
+
+    def _subscribe_carrier_events(self) -> None:
+        """Listen to per-carrier parcel events and re-emit them unified.
+
+        Each carrier that has adopted the canonical event contract fires
+        ``<prefix>_parcel_registered`` and ``<prefix>_parcel_status_changed``
+        on the HA event bus. The aggregator forwards them as
+        ``parcel_aggregator_parcel_registered`` and
+        ``parcel_aggregator_parcel_status_changed`` so users only need one
+        listener for "any parcel from any carrier".
+        """
+        for prefix in CARRIER_EVENT_PREFIXES.values():
+            self._unsub_event_listeners.append(
+                self.hass.bus.async_listen(
+                    f"{prefix}_parcel_registered", self._on_carrier_registered
+                )
+            )
+            self._unsub_event_listeners.append(
+                self.hass.bus.async_listen(
+                    f"{prefix}_parcel_status_changed",
+                    self._on_carrier_status_changed,
+                )
+            )
+
+    @callback
+    def _on_carrier_registered(self, event: Event) -> None:
+        self.hass.bus.async_fire(EVENT_PARCEL_REGISTERED, strip_raw(dict(event.data)))
+
+    @callback
+    def _on_carrier_status_changed(self, event: Event) -> None:
+        self.hass.bus.async_fire(
+            EVENT_PARCEL_STATUS_CHANGED, strip_raw(dict(event.data))
+        )
 
     def _discover(self) -> None:
         registry = er.async_get(self.hass)
