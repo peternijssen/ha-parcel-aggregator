@@ -1,0 +1,31 @@
+# Notify when any parcel goes out for delivery, with a carrier-specific
+# emoji and title. Demonstrates how to branch on the `carrier` field
+# inside a single carrier-agnostic automation rather than maintaining
+# one automation per carrier.
+
+alias: "Parcel: out for delivery (per-carrier styling)"
+description: Notify when any parcel is on the truck today; style the message per carrier.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: parcel_aggregator_parcel_status_changed
+    event_data:
+      new_status: out_for_delivery
+
+variables:
+  carrier_styles:
+    DHL: { emoji: "🟡", color: "yellow" }
+    DPD: { emoji: "🔴", color: "red" }
+    PostNL: { emoji: "🟠", color: "orange" }
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "{{ carrier_styles[trigger.event.data.carrier].emoji }} {{ trigger.event.data.carrier }} onderweg"
+      message: >-
+        {{ trigger.event.data.sender or 'Onbekende afzender' }} – {{ trigger.event.data.barcode }}
+      data:
+        color: "{{ carrier_styles[trigger.event.data.carrier].color }}"
+        clickAction: "{{ trigger.event.data.url }}"

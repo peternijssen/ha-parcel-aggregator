@@ -1,0 +1,39 @@
+# Daily 08:00 push notification summarising what's expected today
+# across every installed carrier. Uses the aggregator's `by_carrier`
+# count attribute for the headline and the `parcels` attribute for
+# the sender list per carrier.
+#
+# Set the time to whatever suits your routine — the trigger is a fixed
+# time-of-day, not an event.
+
+alias: "Parcel: daily morning summary"
+description: Push the day's expected parcels grouped by carrier.
+mode: single
+
+triggers:
+  - trigger: time
+    at: "08:00:00"
+
+conditions:
+  - condition: numeric_state
+    entity: sensor.parcel_aggregator_incoming
+    above: 0
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "Pakketten vandaag"
+      message: >-
+        {% set by_carrier = state_attr('sensor.parcel_aggregator_incoming', 'by_carrier') or {} %}
+        {% set parcels = state_attr('sensor.parcel_aggregator_incoming', 'parcels') or [] %}
+        {%- for carrier, count in by_carrier.items() %}
+        {{ carrier }}: {{ count }}
+        {%- set senders = parcels | selectattr('carrier', 'eq', carrier)
+                                  | map(attribute='sender')
+                                  | reject('none')
+                                  | list %}
+        {%- if senders %}
+          • {{ senders | join('
+          • ') }}
+        {%- endif %}
+        {%- endfor %}

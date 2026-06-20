@@ -2,13 +2,15 @@
 
 Ready-to-paste Home Assistant snippets for the Parcel Aggregator.
 
-Every example here is **carrier-agnostic** — it triggers on the unified
-`parcel_aggregator_*` events or aggregator sensors, so a single
-automation covers DHL, PostNL and DPD without per-carrier copies.
+Examples cover two patterns:
+
+- **Carrier-agnostic** — one trigger / one card that handles DHL, PostNL and DPD uniformly. The default starting point for most automations and dashboards.
+- **Carrier-aware** — uses the `carrier` field on each parcel or the `by_carrier` attribute on a summary sensor to branch styling, route notifications, or render a per-carrier breakdown.
 
 | Folder | Contents |
 |---|---|
 | [`automations/`](automations/) | YAML automation blueprints — paste into `automations.yaml` or the Automation editor in **raw editor** mode. |
+| [`dashboards/`](dashboards/) | Lovelace card snippets — paste into the YAML editor of any card. |
 
 ## Events used in the examples
 
@@ -28,3 +30,19 @@ event (`dhl_nl_parcel_status_changed`, etc.) if you need it.
 Events only flow for carriers that have shipped the canonical event
 contract (DHL today; DPD and PostNL on their next majors). The
 aggregator's state-aggregation sensors work regardless.
+
+## Multi-carrier attributes
+
+Every summary sensor exposes the same trio of attributes that the
+carrier-aware examples lean on:
+
+| Attribute | Type | Notes |
+|---|---|---|
+| `parcels` | list[dict] | Every parcel across every installed carrier in the canonical shape. The `carrier` field on each entry is `"DHL"` / `"PostNL"` / `"DPD"` — filter with `selectattr('carrier', 'eq', 'DHL')`. |
+| `by_carrier` | dict[str, int] | Count per carrier, e.g. `{"DHL": 3, "DPD": 1}`. Iterate in templates with `.items()`. |
+| `total` *(via state)* | int | The sensor's `state` is the total count. |
+
+The `next_delivery` sensor exposes a slightly different shape: a
+single `parcel` (the earliest-arriving one, with its `carrier` baked
+in) plus `by_carrier` mapping each carrier to its own earliest
+datetime — useful for a "DHL eerst, daarna DPD" timeline card.

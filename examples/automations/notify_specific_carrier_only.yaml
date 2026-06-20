@@ -1,0 +1,35 @@
+# Only notify for DHL parcels — handy when you actively track one carrier
+# and don't want noise from the others. Demonstrates the inverse of the
+# carrier-agnostic default: a unified event listener with a carrier
+# filter in the condition block.
+#
+# Swap "DHL" for "DPD" or "PostNL" as needed, or use `not in [...]` to
+# silence specific carriers.
+
+alias: "Parcel: DHL parcels only"
+description: Notify only for new DHL parcels, ignore other carriers.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: parcel_aggregator_parcel_registered
+
+conditions:
+  - condition: template
+    value_template: "{{ trigger.event.data.carrier == 'DHL' }}"
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "DHL pakket onderweg"
+      message: >-
+        {{ trigger.event.data.sender or 'Onbekende afzender' }} – verwacht
+        {% if trigger.event.data.planned_from %}
+        {{ as_timestamp(trigger.event.data.planned_from)
+           | timestamp_custom('%a %-d %b') }}
+        {% else %}
+        binnenkort
+        {% endif %}
+      data:
+        clickAction: "{{ trigger.event.data.url }}"
