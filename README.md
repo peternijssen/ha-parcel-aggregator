@@ -74,7 +74,7 @@ Standard HA removal applies: **Settings → Devices & Services → Parcel Aggreg
 | Entity | Description |
 |--------|-------------|
 | `sensor.parcel_aggregator_incoming` | Sum of active incoming parcels across all carriers; merged parcel list on the `parcels` attribute |
-| `sensor.parcel_aggregator_outgoing` | Sum of active outgoing shipments across all carriers; merged list on the `shipments` attribute |
+| `sensor.parcel_aggregator_outgoing` | Sum of active outgoing parcels across all carriers; merged list on the `parcels` attribute |
 | `sensor.parcel_aggregator_delivered` | Sum of recently delivered parcels across all carriers (uses each carrier's own filter window); merged list on `parcels` |
 | `sensor.parcel_aggregator_awaiting_pickup` | Sum of active incoming parcels destined for a pickup point (ServicePoint / PostNL Point / ParcelShop); merged list on `parcels` |
 | `sensor.parcel_aggregator_next_delivery` | Earliest expected delivery datetime across all carriers; the matching parcel on the `parcel` attribute |
@@ -83,7 +83,7 @@ Every sensor exposes a `by_carrier` attribute with the per-carrier breakdown —
 
 ### Unified parcel shape
 
-The `parcels` / `shipments` attribute on each summary sensor contains every parcel from every installed carrier in the carrier-agnostic shape:
+The `parcels` attribute on each summary sensor contains every parcel from every installed carrier in the carrier-agnostic shape:
 
 | Key | Type | Meaning |
 |---|---|---|

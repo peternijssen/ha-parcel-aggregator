@@ -34,17 +34,17 @@ def test_incoming_sensor_reports_total_and_parcels():
     assert attrs["parcels"] == parcels
 
 
-def test_outgoing_sensor_uses_shipments_attribute_key():
-    shipments = [{"barcode": "X"}]
+def test_outgoing_sensor_exposes_parcel_list_on_parcels_key():
+    parcels = [{"barcode": "X"}]
     sensor = ParcelsOutgoingSensor(
-        _coordinator({"outgoing": {"total": 1, "by_carrier": {"PostNL": 1}, "parcels": shipments}})
+        _coordinator({"outgoing": {"total": 1, "by_carrier": {"PostNL": 1}, "parcels": parcels}})
     )
     assert sensor.native_value == 1
     attrs = sensor.extra_state_attributes
-    # Outgoing uses "shipments" instead of "parcels" on attributes
-    assert "shipments" in attrs
-    assert "parcels" not in attrs
-    assert attrs["shipments"] == shipments
+    # Every aggregator summary sensor uses the same "parcels" attribute key
+    # so templates can iterate uniformly across incoming / outgoing / delivered.
+    assert attrs["parcels"] == parcels
+    assert "shipments" not in attrs
 
 
 def test_delivered_sensor_zero_when_no_data():

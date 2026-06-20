@@ -90,6 +90,35 @@ async def test_dhl_status_changed_event_is_reemitted_unified(hass):
 
 
 @pytest.mark.asyncio
+async def test_dpd_registered_event_is_reemitted_unified(hass):
+    """A dpd_parcel_registered event triggers parcel_aggregator_parcel_registered."""
+    entry = _add_entry(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    captured = _capture(hass, EVENT_PARCEL_REGISTERED)
+
+    hass.bus.async_fire(
+        "dpd_parcel_registered",
+        {
+            "carrier": "DPD",
+            "barcode": "01XXXXXXXXXXXX",
+            "status": ParcelStatus.REGISTERED,
+            "raw_status": "ORDER_CREATED",
+            "raw": {"big": "payload"},
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert len(captured) == 1
+    payload = captured[0].data
+    assert payload["carrier"] == "DPD"
+    assert payload["barcode"] == "01XXXXXXXXXXXX"
+    assert payload["status"] == ParcelStatus.REGISTERED
+    assert "raw" not in payload
+
+
+@pytest.mark.asyncio
 async def test_unknown_carrier_event_is_ignored(hass):
     """Events from a carrier not in CARRIER_EVENT_PREFIXES do not get re-emitted."""
     entry = _add_entry(hass)

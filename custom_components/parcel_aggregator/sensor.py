@@ -59,11 +59,8 @@ class _BaseListSensor(CoordinatorEntity[ParcelAggregatorCoordinator], SensorEnti
 
     _attr_has_entity_name = True
     _attr_state_class = SensorStateClass.MEASUREMENT
-    # Either "parcels" or "shipments" is set per subclass; listing both is
-    # harmless since unknown keys are simply ignored by the recorder.
-    _unrecorded_attributes = frozenset({"parcels", "shipments"})
+    _unrecorded_attributes = frozenset({"parcels"})
     _bucket: str = ""
-    _list_attr: str = "parcels"
 
     def __init__(self, coordinator: ParcelAggregatorCoordinator) -> None:
         super().__init__(coordinator)
@@ -82,7 +79,7 @@ class _BaseListSensor(CoordinatorEntity[ParcelAggregatorCoordinator], SensorEnti
         info = self._info()
         return {
             "by_carrier": info.get("by_carrier", {}),
-            self._list_attr: info.get("parcels", []),
+            "parcels": info.get("parcels", []),
         }
 
 
@@ -94,7 +91,6 @@ class ParcelsIncomingSensor(_BaseListSensor):
 class ParcelsOutgoingSensor(_BaseListSensor):
     _attr_translation_key = "outgoing"
     _bucket = "outgoing"
-    _list_attr = "shipments"
 
 
 class ParcelsDeliveredSensor(_BaseListSensor):

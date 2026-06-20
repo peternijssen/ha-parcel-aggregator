@@ -47,6 +47,7 @@ KNOWN_CARRIERS: dict[str, str] = {
 # ships the event contract.
 CARRIER_EVENT_PREFIXES: dict[str, str] = {
     "dhl_nl": "dhl_nl",
+    "dpd": "dpd",
 }
 
 EVENT_PARCEL_REGISTERED = f"{DOMAIN}_parcel_registered"
@@ -60,8 +61,11 @@ SOURCE_SUFFIXES: dict[str, str] = {
 }
 
 # Attribute key on each source sensor that holds the parcel list.
+# Every carrier-side sensor exposes `parcels` after the 2.0.0 normalisation
+# wave (DHL 2.0.0b2, DPD 2.0.0); the old "shipments" key for outgoing is
+# gone from both.
 ATTR_KEY_BY_BUCKET: dict[str, str] = {
     "incoming": "parcels",
-    "outgoing": "shipments",
+    "outgoing": "parcels",
     "delivered": "parcels",
 }
