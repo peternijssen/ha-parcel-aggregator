@@ -1,0 +1,32 @@
+# Markdown card that renders every active incoming parcel from every
+# carrier in one list, with a carrier badge in front and a clickable
+# tracking URL when the carrier exposes one. Conditional on count > 0
+# so it hides itself on empty days.
+
+type: conditional
+conditions:
+  - condition: numeric_state
+    entity: sensor.parcel_aggregator_incoming
+    above: 0
+card:
+  type: markdown
+  title: Pakketten onderweg
+  content: >-
+    {% set labels = {
+      'registered': 'aangemeld',
+      'in_transit': 'onderweg',
+      'out_for_delivery': 'bezorging vandaag',
+      'at_pickup_point': 'klaar voor afhalen',
+      'delivered': 'bezorgd',
+      'returning': 'retour naar afzender',
+      'unknown': 'status onbekend'
+    } %}
+    {% for p in state_attr('sensor.parcel_aggregator_incoming', 'parcels') or [] -%}
+    {% set sender = p.sender or 'Onbekende afzender' -%}
+    {% set status = labels.get(p.status, p.status) -%}
+    {%- if p.url %}
+    - **[{{ p.carrier }}]** [{{ sender }}]({{ p.url }}) — {{ status }}
+    {%- else %}
+    - **[{{ p.carrier }}]** {{ sender }} — {{ status }}
+    {%- endif %}
+    {% endfor %}

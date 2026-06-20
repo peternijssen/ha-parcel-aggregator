@@ -1,0 +1,32 @@
+# Next-delivery card across every installed carrier. The aggregator's
+# next-delivery sensor exposes the earliest planned_from datetime as
+# its native value (rendered relatively by HA: "in 3 hours" / "morgen
+# 10:00") and the matching parcel under the `parcel` attribute — so the
+# carrier badge comes for free.
+
+type: entities
+title: Eerstvolgende bezorging
+entities:
+  - entity: sensor.parcel_aggregator_next_delivery
+    name: Verwacht
+    secondary_info: last-updated
+  - type: attribute
+    entity: sensor.parcel_aggregator_next_delivery
+    attribute: parcel
+    name: Pakket
+    format: relative
+  - type: custom:template-entity-row
+    name: Koerier
+    state: >-
+      {% set p = state_attr('sensor.parcel_aggregator_next_delivery', 'parcel') %}
+      {{ p.carrier if p else 'geen actieve pakketten' }}
+  - type: custom:template-entity-row
+    name: Afzender
+    state: >-
+      {% set p = state_attr('sensor.parcel_aggregator_next_delivery', 'parcel') %}
+      {{ p.sender if p and p.sender else '—' }}
+
+# The two `custom:template-entity-row` rows need the Lovelace plugin
+# `template-entity-row` from HACS. Without it, swap them for plain
+# attribute rows that point at `parcel` and project the keys in a
+# separate markdown card — the data is on the same attribute.

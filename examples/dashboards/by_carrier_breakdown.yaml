@@ -1,0 +1,22 @@
+# Markdown card showing the per-carrier counter breakdown for incoming,
+# en-route-to-pickup-point and recently delivered parcels in one glance.
+# Lives off the `by_carrier` attribute every aggregator summary sensor
+# exposes.
+#
+# Iteration is driven by the carriers present in the data, so the card
+# automatically adapts to which carrier integrations you actually have
+# installed — there is no per-carrier setup.
+
+type: markdown
+title: Pakketten per koerier
+content: >-
+  {% set incoming = state_attr('sensor.parcel_aggregator_incoming', 'by_carrier') or {} %}
+  {% set pickup = state_attr('sensor.parcel_aggregator_awaiting_pickup', 'by_carrier') or {} %}
+  {% set delivered = state_attr('sensor.parcel_aggregator_delivered', 'by_carrier') or {} %}
+  {% set carriers = (incoming.keys() | list + pickup.keys() | list + delivered.keys() | list) | unique | list %}
+
+  | Koerier | Onderweg | Afhalen | Recent bezorgd |
+  | --- | ---: | ---: | ---: |
+  {%- for carrier in carriers %}
+  | {{ carrier }} | {{ incoming.get(carrier, 0) }} | {{ pickup.get(carrier, 0) }} | {{ delivered.get(carrier, 0) }} |
+  {%- endfor %}
