@@ -30,7 +30,7 @@ If you install a new carrier integration after Parcel Aggregator was set up, **r
 |-------------|-----------|---|---|
 | DHL NL | [peternijssen/ha-dhl-nl](https://github.com/peternijssen/ha-dhl-nl) | ✅ since 2.0.0 | ✅ since 2.0.0 |
 | PostNL | [peternijssen/ha-postnl](https://github.com/peternijssen/ha-postnl) | planned for 4.0.0 | planned for 4.0.0 |
-| DPD | [peternijssen/ha-dpd](https://github.com/peternijssen/ha-dpd) | planned for 2.0.0 | planned for 2.0.0 |
+| DPD | [peternijssen/ha-dpd](https://github.com/peternijssen/ha-dpd) | ✅ since 2.0.0 | ✅ since 2.0.0 |
 
 The state-aggregation layer works with every installed carrier regardless. Events only flow for carriers in the ✅ column — others get added automatically once they ship the canonical event contract.
 
@@ -146,8 +146,8 @@ The [`examples/`](examples/) folder ships ready-to-paste snippets:
 ## Known limitations
 
 - The aggregator only discovers source sensors **at setup time**. Install a new carrier integration → reload Parcel Aggregator before its sensors appear.
-- The `next_delivery` timestamp is only as precise as the underlying carrier exposes. DPD for example only gives a date (midnight in the parcel's timezone), so use it for "today/tomorrow" alerts rather than precise hour windows.
-- The `awaiting_pickup` sensor counts every parcel destined for a pickup point, including ones that are still en route. DHL exposes a distinct `at_pickup_point` status on the parcel dict for parcels that have *actually arrived* at the pickup point — DPD does not yet. The sensor stays on the lowest-common-denominator semantics for now.
+- The `next_delivery` timestamp is only as precise as the underlying carrier exposes. DPD gives a day window (midnight to midnight) until Follow My Parcel fires shortly before delivery — then it narrows to an hour window. Use it for "today/tomorrow" alerts rather than counting on precise hour windows being available all day.
+- The `awaiting_pickup` sensor counts every parcel destined for a pickup point, including ones that are still en route. DHL exposes a distinct `at_pickup_point` status on the parcel dict for parcels that have *actually arrived* at the pickup point — DPD's API does not surface this signal yet. The sensor stays on the lowest-common-denominator semantics for now.
 - Events only flow for carriers that have adopted the canonical event contract (see the [Supported sources](#supported-sources) table).
 
 ## Disclaimer
