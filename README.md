@@ -2,6 +2,26 @@
 
 A Home Assistant custom integration that rolls up parcel counts, next-delivery timestamps, and parcel-event notifications from the DHL, PostNL, and DPD integrations into a single set of sensors and a single unified event stream.
 
+## Contents
+
+- [Use cases](#use-cases)
+- [How it works](#how-it-works)
+- [How updates work](#how-updates-work)
+- [Supported sources](#supported-sources)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Options](#options)
+- [Removal](#removal)
+- [Sensors](#sensors)
+- [Parcel status reference](#parcel-status-reference)
+- [Events](#events)
+- [Examples](#examples)
+- [Known limitations](#known-limitations)
+- [Disclaimer](#disclaimer)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Use cases
 
 - A single dashboard card that shows how many parcels you expect today across DHL, PostNL and DPD without juggling per-carrier sensors.
@@ -136,12 +156,18 @@ See [`examples/automations/`](examples/automations/) for ready-to-paste carrier-
 
 ## Examples
 
-The [`examples/`](examples/) folder ships ready-to-paste snippets:
+Ready-to-paste carrier-agnostic automations live in [`examples/`](examples/).
 
-- [`examples/automations/notify_when_any_parcel_registered.yaml`](examples/automations/notify_when_any_parcel_registered.yaml) — single trigger for new parcels from any carrier.
-- [`examples/automations/notify_when_any_out_for_delivery.yaml`](examples/automations/notify_when_any_out_for_delivery.yaml) — alert once per parcel when it's on a delivery vehicle today, regardless of carrier.
-- [`examples/automations/notify_when_any_at_pickup_point.yaml`](examples/automations/notify_when_any_at_pickup_point.yaml) — alert when a parcel arrives at a ServicePoint / PostNL Point / ParcelShop.
-- [`examples/automations/announce_next_delivery_window.yaml`](examples/automations/announce_next_delivery_window.yaml) — voice/notification one hour before the next expected delivery.
+### Community Lovelace cards
+
+The aggregator's bucket sensors pair well with the same third-party cards
+that work for the individual carrier integrations:
+
+- [jonisnet/hki-parcels-card](https://github.com/jonisnet/hki-parcels-card) — multi-carrier (PostNL, DHL, DPD) Home Kit-style card. Reads the per-carrier sensors directly, but is a natural companion to the aggregator's unified view.
+- [klaptafel/ha-package-tracker-card](https://github.com/klaptafel/ha-package-tracker-card) — purpose-built card for parcel integrations.
+
+Both are maintained by their respective authors — please raise UI issues
+in those repos.
 
 ## Known limitations
 
