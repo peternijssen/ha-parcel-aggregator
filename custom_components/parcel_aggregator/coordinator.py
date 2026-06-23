@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -40,13 +40,21 @@ def parse_int_state(value: str | None) -> int | None:
 
 
 def parse_timestamp_state(value: str | None) -> datetime | None:
-    """Convert an ISO 8601 timestamp string to ``datetime``, or ``None`` if unparseable."""
+    """Convert an ISO 8601 timestamp string to ``datetime``, or ``None`` if unparseable.
+
+    Always returns a tz-aware datetime: naive ISO strings (which the source
+    carriers do occasionally emit) are treated as UTC. Mixing naive and aware
+    values in the same list would otherwise crash any downstream sort.
+    """
     if value in _UNAVAILABLE_STATES:
         return None
     try:
-        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except (TypeError, ValueError):
         return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 
 
 def aggregate_sum(

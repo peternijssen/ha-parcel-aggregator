@@ -88,6 +88,15 @@ def test_parse_timestamp_returns_none_for_garbage():
     assert parse_timestamp_state("not a date") is None
 
 
+def test_parse_timestamp_treats_naive_iso_as_utc():
+    # Regression: when one source carrier emits "2026-06-12T10:00:00" without
+    # a tz suffix and another emits "...Z", the downstream sort crashed with
+    # "can't compare offset-naive and offset-aware datetimes". Naive values
+    # must come back tagged so every result is mutually comparable.
+    dt = parse_timestamp_state("2026-06-12T10:00:00")
+    assert dt == datetime(2026, 6, 12, 10, 0, 0, tzinfo=timezone.utc)
+
+
 # ---------------------------------------------------------------------------
 # aggregate_sum
 # ---------------------------------------------------------------------------
