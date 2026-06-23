@@ -1,7 +1,7 @@
 # Markdown card that renders every active incoming parcel from every
-# carrier in one list, with a carrier badge in front and a clickable
-# tracking URL when the carrier exposes one. Conditional on count > 0
-# so it hides itself on empty days.
+# carrier in one table, with carrier, sender (clickable when a tracking
+# URL is available), status, and the expected delivery window.
+# Conditional on count > 0 so it hides itself on empty days.
 
 type: conditional
 conditions:
@@ -12,7 +12,7 @@ card:
   type: markdown
   title: Pakketten onderweg
   content: >-
-    {% set labels = {
+    {%- set labels = {
       'registered': 'aangemeld',
       'in_transit': 'onderweg',
       'out_for_delivery': 'bezorging vandaag',
@@ -20,13 +20,19 @@ card:
       'delivered': 'bezorgd',
       'returning': 'retour naar afzender',
       'unknown': 'status onbekend'
-    } %}
-    {% for p in state_attr('sensor.parcel_aggregator_incoming', 'parcels') or [] -%}
-    {% set sender = p.sender or 'Onbekende afzender' -%}
-    {% set status = labels.get(p.status, p.status) -%}
-    {%- if p.url %}
-    - **[{{ p.carrier }}]** [{{ sender }}]({{ p.url }}) — {{ status }}
-    {%- else %}
-    - **[{{ p.carrier }}]** {{ sender }} — {{ status }}
-    {%- endif %}
-    {% endfor %}
+    } -%}
+    {%- set ns = namespace(rows=[]) -%}
+    {%- for p in state_attr('sensor.parcel_aggregator_incoming', 'parcels') or [] -%}
+      {%- set sender = p.sender or 'Onbekende afzender' -%}
+      {%- set status = labels.get(p.status, p.status) -%}
+      {%- set afzender = '[%s](%s)' | format(sender, p.url) if p.url else sender -%}
+      {%- if p.planned_from and p.planned_to -%}
+        {%- set verwacht = (as_timestamp(p.planned_from) | timestamp_custom('%a %-d %b %H:%M', true)) ~ '–' ~ (as_timestamp(p.planned_to) | timestamp_custom('%H:%M', true)) -%}
+      {%- elif p.planned_from -%}
+        {%- set verwacht = as_timestamp(p.planned_from) | timestamp_custom('%a %-d %b %H:%M', true) -%}
+      {%- else -%}
+        {%- set verwacht = '—' -%}
+      {%- endif -%}
+      {%- set ns.rows = ns.rows + ['| %s | %s | %s | %s |' | format(p.carrier, afzender, status, verwacht)] -%}
+    {%- endfor -%}
+    {{ '| Vervoerder | Afzender | Status | Verwacht |\n| :-- | :-- | :-- | :-- |\n' ~ (ns.rows | join('\n')) }}
