@@ -7,6 +7,7 @@ from custom_components.parcel_aggregator.coordinator import (
     next_delivery_from,
     parse_int_state,
     parse_timestamp_state,
+    sort_parcels_by_ts,
     strip_raw,
 )
 
@@ -19,6 +20,7 @@ def _parcel(
     pickup: bool = False,
     pickup_point: str | None = None,
     delivered: bool = False,
+    delivered_at: str | None = None,
     raw: dict | None = None,
 ) -> dict:
     return {
@@ -27,7 +29,7 @@ def _parcel(
         "sender": sender,
         "status": "IN_DELIVERY",
         "delivered": delivered,
-        "delivered_at": None,
+        "delivered_at": delivered_at,
         "planned_from": planned_from,
         "planned_to": None,
         "pickup": pickup,
@@ -140,6 +142,57 @@ def test_strip_raw_removes_raw_key():
 def test_strip_raw_is_noop_when_raw_missing():
     parcel = {"carrier": "DHL", "barcode": "ABC"}
     assert strip_raw(parcel) == parcel
+
+
+# ---------------------------------------------------------------------------
+# sort_parcels_by_ts
+# ---------------------------------------------------------------------------
+
+
+def test_sort_parcels_orders_ascending_by_planned_from():
+    parcels = [
+        _parcel(barcode="late", planned_from="2026-06-15T10:00:00+00:00"),
+        _parcel(barcode="early", planned_from="2026-06-13T08:00:00+00:00"),
+        _parcel(barcode="mid", planned_from="2026-06-14T12:00:00+00:00"),
+    ]
+    ordered = [p["barcode"] for p in sort_parcels_by_ts(parcels, "planned_from")]
+    assert ordered == ["early", "mid", "late"]
+
+
+def test_sort_parcels_orders_descending_for_delivered_at():
+    parcels = [
+        _parcel(barcode="oldest", delivered=True, delivered_at="2026-06-13T08:00:00+00:00"),
+        _parcel(barcode="newest", delivered=True, delivered_at="2026-06-15T10:00:00+00:00"),
+        _parcel(barcode="mid", delivered=True, delivered_at="2026-06-14T12:00:00+00:00"),
+    ]
+    ordered = [p["barcode"] for p in sort_parcels_by_ts(parcels, "delivered_at", descending=True)]
+    assert ordered == ["newest", "mid", "oldest"]
+
+
+def test_sort_parcels_keeps_missing_timestamps_at_end():
+    parcels = [
+        _parcel(barcode="no-ts-1", planned_from=None),
+        _parcel(barcode="early", planned_from="2026-06-13T08:00:00+00:00"),
+        _parcel(barcode="no-ts-2", planned_from="garbage"),
+        _parcel(barcode="late", planned_from="2026-06-15T10:00:00+00:00"),
+    ]
+    ordered = [p["barcode"] for p in sort_parcels_by_ts(parcels, "planned_from")]
+    assert ordered[:2] == ["early", "late"]
+    assert set(ordered[2:]) == {"no-ts-1", "no-ts-2"}
+
+
+def test_sort_parcels_missing_timestamps_stay_at_end_when_descending():
+    parcels = [
+        _parcel(barcode="no-ts", delivered=True, delivered_at=None),
+        _parcel(barcode="newer", delivered=True, delivered_at="2026-06-15T10:00:00+00:00"),
+        _parcel(barcode="older", delivered=True, delivered_at="2026-06-13T10:00:00+00:00"),
+    ]
+    ordered = [p["barcode"] for p in sort_parcels_by_ts(parcels, "delivered_at", descending=True)]
+    assert ordered == ["newer", "older", "no-ts"]
+
+
+def test_sort_parcels_empty_input_returns_empty_list():
+    assert sort_parcels_by_ts([], "planned_from") == []
 
 
 # ---------------------------------------------------------------------------

@@ -70,6 +70,28 @@ def strip_raw(parcel: dict) -> dict:
     return {k: v for k, v in parcel.items() if k != "raw"}
 
 
+def sort_parcels_by_ts(
+    parcels: list[dict], key_field: str, *, descending: bool = False
+) -> list[dict]:
+    """Return parcels sorted by the ISO timestamp at ``key_field``.
+
+    Parcels whose value is missing or unparseable always sort to the end,
+    regardless of ``descending`` — so e.g. just-registered parcels with
+    no ETA still show after the parcels that do have one rather than
+    disappearing to the top.
+    """
+    with_ts: list[tuple[datetime, dict]] = []
+    without_ts: list[dict] = []
+    for parcel in parcels:
+        ts = parse_timestamp_state(parcel.get(key_field))
+        if ts is None:
+            without_ts.append(parcel)
+        else:
+            with_ts.append((ts, parcel))
+    with_ts.sort(key=lambda item: item[0], reverse=descending)
+    return [p for _, p in with_ts] + without_ts
+
+
 def next_delivery_from(parcels: list[dict]) -> dict[str, Any]:
     """Pick the earliest ``planned_from`` across a list of normalized parcels.
 
@@ -221,9 +243,15 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.async_set_updated_data(self._compute())
 
     def _compute(self) -> dict[str, Any]:
-        incoming_parcels = self._collect_parcels("incoming")
-        delivered_parcels = self._collect_parcels("delivered")
-        outgoing_parcels = self._collect_parcels("outgoing")
+        incoming_parcels = sort_parcels_by_ts(
+            self._collect_parcels("incoming"), "planned_from"
+        )
+        outgoing_parcels = sort_parcels_by_ts(
+            self._collect_parcels("outgoing"), "planned_from"
+        )
+        delivered_parcels = sort_parcels_by_ts(
+            self._collect_parcels("delivered"), "delivered_at", descending=True
+        )
         return {
             "incoming": {
                 **self._sum_bucket("incoming"),
