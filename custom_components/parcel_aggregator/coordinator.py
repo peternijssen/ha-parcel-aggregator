@@ -16,6 +16,7 @@ from .const import (
     ATTR_KEY_BY_BUCKET,
     CARRIER_EVENT_PREFIXES,
     DOMAIN,
+    EVENT_PARCEL_DELIVERY_TIME_CHANGED,
     EVENT_PARCEL_REGISTERED,
     EVENT_PARCEL_STATUS_CHANGED,
     KNOWN_CARRIERS,
@@ -207,11 +208,12 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Listen to per-carrier parcel events and re-emit them unified.
 
         Each carrier that has adopted the canonical event contract fires
-        ``<prefix>_parcel_registered`` and ``<prefix>_parcel_status_changed``
-        on the HA event bus. The aggregator forwards them as
-        ``parcel_aggregator_parcel_registered`` and
-        ``parcel_aggregator_parcel_status_changed`` so users only need one
-        listener for "any parcel from any carrier".
+        ``<prefix>_parcel_registered``, ``<prefix>_parcel_status_changed``
+        and ``<prefix>_parcel_delivery_time_changed`` on the HA event bus.
+        The aggregator forwards them as ``parcel_aggregator_parcel_registered``,
+        ``parcel_aggregator_parcel_status_changed`` and
+        ``parcel_aggregator_parcel_delivery_time_changed`` so users only
+        need one listener for "any parcel from any carrier".
         """
         for prefix in CARRIER_EVENT_PREFIXES.values():
             self._unsub_event_listeners.append(
@@ -225,6 +227,12 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     self._on_carrier_status_changed,
                 )
             )
+            self._unsub_event_listeners.append(
+                self.hass.bus.async_listen(
+                    f"{prefix}_parcel_delivery_time_changed",
+                    self._on_carrier_delivery_time_changed,
+                )
+            )
 
     @callback
     def _on_carrier_registered(self, event: Event) -> None:
@@ -234,6 +242,12 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _on_carrier_status_changed(self, event: Event) -> None:
         self.hass.bus.async_fire(
             EVENT_PARCEL_STATUS_CHANGED, strip_raw(dict(event.data))
+        )
+
+    @callback
+    def _on_carrier_delivery_time_changed(self, event: Event) -> None:
+        self.hass.bus.async_fire(
+            EVENT_PARCEL_DELIVERY_TIME_CHANGED, strip_raw(dict(event.data))
         )
 
     def _discover(self) -> None:

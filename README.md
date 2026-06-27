@@ -150,6 +150,7 @@ The coordinator fires unified events on the HA event bus when something interest
 |---|---|---|
 | `parcel_aggregator_parcel_registered` | A carrier announces a new parcel | The full normalised parcel dict (`carrier`, `barcode`, `sender`, `receiver`, `status`, `raw_status`, `delivered`, `delivered_at`, `planned_from`, `planned_to`, `pickup`, `pickup_point`, `url`, `weight`, `dimensions`) |
 | `parcel_aggregator_parcel_status_changed` | A known parcel's `status` value changes | Same payload as above plus `old_status` and `new_status` |
+| `parcel_aggregator_parcel_delivery_time_changed` | A known parcel's `planned_from` or `planned_to` ends up with a non-null value that differs from the previous one. Value-to-null transitions are intentionally silent. | Same payload as above plus `old_planned_from`, `new_planned_from`, `old_planned_to`, `new_planned_to` |
 
 The carrier-specific `raw` payload is stripped from the event to keep it small. Inspect the source carrier's own event (e.g. `dhl_nl_parcel_status_changed`) if you need the raw payload.
 

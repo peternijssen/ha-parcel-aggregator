@@ -4,6 +4,7 @@ import pytest
 from custom_components.parcel_aggregator.const import (
     CARRIER_EVENT_PREFIXES,
     DOMAIN,
+    EVENT_PARCEL_DELIVERY_TIME_CHANGED,
     EVENT_PARCEL_REGISTERED,
     EVENT_PARCEL_STATUS_CHANGED,
     ParcelStatus,
@@ -144,6 +145,37 @@ async def test_postnl_registered_event_is_reemitted_unified(hass):
     assert payload["carrier"] == "PostNL"
     assert payload["barcode"] == "3SABC"
     assert payload["status"] == ParcelStatus.REGISTERED
+    assert "raw" not in payload
+
+
+@pytest.mark.asyncio
+async def test_dhl_delivery_time_changed_event_is_reemitted_unified(hass):
+    """A dhl_nl_parcel_delivery_time_changed event triggers the unified event."""
+    entry = _add_entry(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    captured = _capture(hass, EVENT_PARCEL_DELIVERY_TIME_CHANGED)
+
+    hass.bus.async_fire(
+        "dhl_nl_parcel_delivery_time_changed",
+        {
+            "carrier": "DHL",
+            "barcode": "BARCODE-3",
+            "status": ParcelStatus.OUT_FOR_DELIVERY,
+            "old_planned_from": "2026-06-27T10:00:00+02:00",
+            "new_planned_from": "2026-06-27T14:00:00+02:00",
+            "old_planned_to": None,
+            "new_planned_to": None,
+            "raw": {"big": "payload"},
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert len(captured) == 1
+    payload = captured[0].data
+    assert payload["barcode"] == "BARCODE-3"
+    assert payload["new_planned_from"] == "2026-06-27T14:00:00+02:00"
     assert "raw" not in payload
 
 

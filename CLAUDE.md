@@ -61,14 +61,16 @@ re-propose these as improvements:
   `status` field of each normalised parcel. Kept in sync across all
   four repositories so cross-carrier automations can target
   `status: out_for_delivery` regardless of source.
-- **Carrier event re-emit layer** — the coordinator subscribes to
-  every `<prefix>_parcel_registered` / `<prefix>_parcel_status_changed`
-  event published by carriers listed in `CARRIER_EVENT_PREFIXES` and
-  re-fires them as `parcel_aggregator_parcel_registered` /
-  `parcel_aggregator_parcel_status_changed`. Carrier-specific `raw`
-  payload is stripped to keep events small. To onboard a new carrier
-  that ships the canonical event contract, add its HA domain to
-  `CARRIER_EVENT_PREFIXES` — no other change needed.
+- **Carrier event re-emit layer** — the coordinator subscribes to every
+  `<prefix>_parcel_registered` / `<prefix>_parcel_status_changed` /
+  `<prefix>_parcel_delivery_time_changed` event published by carriers
+  listed in `CARRIER_EVENT_PREFIXES` and re-fires them as
+  `parcel_aggregator_parcel_registered` /
+  `parcel_aggregator_parcel_status_changed` /
+  `parcel_aggregator_parcel_delivery_time_changed`. Carrier-specific
+  `raw` payload is stripped to keep events small. To onboard a new
+  carrier that ships the canonical event contract, add its HA domain
+  to `CARRIER_EVENT_PREFIXES` — no other change needed.
 - **Translated unit of measurement** — `entity.sensor.<key>.unit_of_measurement`
   in strings/translations. `_attr_native_unit_of_measurement` is
   intentionally absent from the sensor classes. Dutch users see

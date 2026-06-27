@@ -53,6 +53,7 @@ CARRIER_EVENT_PREFIXES: dict[str, str] = {
 
 EVENT_PARCEL_REGISTERED = f"{DOMAIN}_parcel_registered"
 EVENT_PARCEL_STATUS_CHANGED = f"{DOMAIN}_parcel_status_changed"
+EVENT_PARCEL_DELIVERY_TIME_CHANGED = f"{DOMAIN}_parcel_delivery_time_changed"
 
 # Source sensor unique_id suffix → aggregation bucket name.
 SOURCE_SUFFIXES: dict[str, str] = {
