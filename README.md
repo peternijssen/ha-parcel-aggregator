@@ -6,7 +6,6 @@ A Home Assistant custom integration that rolls up parcel counts, next-delivery t
 
 - [Use cases](#use-cases)
 - [How it works](#how-it-works)
-- [How updates work](#how-updates-work)
 - [Supported sources](#supported-sources)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -31,18 +30,12 @@ A Home Assistant custom integration that rolls up parcel counts, next-delivery t
 
 ## How it works
 
-This integration does **not** talk to any carrier API directly. It does two things:
+The aggregator does **not** talk to any carrier API itself. It reads the sensors and events the per-carrier integrations already publish and exposes:
 
-1. **State aggregation** — reads the state and parcel-list attributes of entities the per-carrier integrations already publish, and exposes summed sensors with a per-carrier breakdown on the attributes.
-2. **Event re-emission** — subscribes to the per-carrier parcel events (`dhl_nl_parcel_registered`, etc.) and re-fires them as `parcel_aggregator_parcel_registered` / `parcel_aggregator_parcel_status_changed` so you only need one listener for "any parcel from any carrier".
+- Summed count sensors with a per-carrier breakdown on the attributes
+- A unified `parcel_aggregator_parcel_*` event stream so one automation can react to any carrier
 
-If a carrier integration is not installed, it's silently skipped — install only what you need.
-
-## How updates work
-
-The aggregator is event-driven, not polling. At setup time it discovers source sensors from the installed carrier integrations and subscribes to their state-change events. Whenever any carrier sensor updates, the aggregator recomputes its sensors immediately. This means the aggregator's freshness is bound to how often each carrier integration polls (typically every 5–15 minutes).
-
-If you install a new carrier integration after Parcel Aggregator was set up, **reload Parcel Aggregator** (Settings → Devices & Services → Parcel Aggregator → ⋮ → Reload) so it picks up the new source sensors.
+Carriers you have not installed are silently skipped. If you add a carrier integration later, **reload Parcel Aggregator** (Settings → Devices & Services → Parcel Aggregator → ⋮ → Reload) so it picks up the new sensors.
 
 ## Supported sources
 
@@ -51,8 +44,6 @@ If you install a new carrier integration after Parcel Aggregator was set up, **r
 | DHL NL | [peternijssen/ha-dhl-nl](https://github.com/peternijssen/ha-dhl-nl) |
 | PostNL | [peternijssen/ha-postnl](https://github.com/peternijssen/ha-postnl) |
 | DPD | [peternijssen/ha-dpd](https://github.com/peternijssen/ha-dpd) |
-
-All three carrier integrations publish the canonical `ParcelStatus` enum and the canonical parcel events, so the state-aggregation and event re-emit layers both cover every installed carrier without further configuration.
 
 ## Requirements
 
@@ -110,9 +101,9 @@ The `parcels` attribute on each summary sensor contains every parcel from every 
 | `carrier` | string | `"DHL"`, `"PostNL"`, or `"DPD"` |
 | `barcode` | string | Parcel tracking number |
 | `sender` | string \| null | Sender name (e.g. webshop) |
-| `receiver` | string \| null | Recipient name. Filled by DHL and DPD today; PostNL surfaces it in a later release. |
+| `receiver` | string \| null | Recipient name |
 | `status` | `ParcelStatus` | Canonical status — see the [status reference](#parcel-status-reference) |
-| `raw_status` | string \| null | Original carrier-specific status string (for power users) |
+| `raw_status` | string \| null | Original carrier-specific status string |
 | `delivered` | bool | Whether the parcel has been delivered |
 | `delivered_at` | ISO 8601 \| null | Delivery moment, if known |
 | `planned_from` | ISO 8601 \| null | Expected delivery window start |
@@ -120,10 +111,10 @@ The `parcels` attribute on each summary sensor contains every parcel from every 
 | `pickup` | bool | Destined for a pickup point rather than a home address |
 | `pickup_point` | string \| null | ServicePoint / Point / ParcelShop name when `pickup` is true |
 | `url` | string \| null | Deep link to the parcel's tracking page |
-| `weight` | float \| null | Parcel weight in kilograms. Filled by DPD today; DHL's consumer API doesn't expose it (always `null`); PostNL surfaces it in a later release. |
-| `dimensions` | dict \| null | Parcel dimensions in centimeters: `{length, width, height, text}` — `text` is a pre-formatted `"L x W x H cm"` string. Same coverage as `weight`. |
+| `weight` | float \| null | Parcel weight in kilograms. May be `null` depending on what the carrier exposes. |
+| `dimensions` | dict \| null | Parcel dimensions in centimeters: `{length, width, height, text}` where `text` is a pre-formatted `"L x W x H cm"` string. May be `null` depending on the carrier. |
 
-The carrier-specific `raw` payload is stripped to keep aggregator-attribute size small — open the per-carrier sensor if you need the original payload.
+The carrier-specific `raw` payload is omitted to keep attribute size small. Open the per-carrier sensor if you need the original payload.
 
 ## Parcel status reference
 
@@ -140,21 +131,17 @@ The carrier-specific `raw` payload is stripped to keep aggregator-attribute size
 | `problem` | Carrier reports an exception, intervention, or other issue |
 | `unknown` | Raw status/category the carrier integration has not mapped yet |
 
-Each carrier ships its own raw-status → `ParcelStatus` mapping (see the per-carrier READMEs). The aggregator passes the carrier's mapped value through unchanged.
+Each carrier has its own raw-status mapping — see the per-carrier READMEs.
 
 ## Events
 
-The coordinator fires unified events on the HA event bus when something interesting happens to any parcel from any carrier, so automations can react without polling per-parcel sensors and without listening to each carrier separately.
+Unified events on the HA event bus let one automation react to changes from any carrier.
 
 | Event | When | Payload |
 |---|---|---|
-| `parcel_aggregator_parcel_registered` | A carrier announces a new parcel | The full normalised parcel dict (`carrier`, `barcode`, `sender`, `receiver`, `status`, `raw_status`, `delivered`, `delivered_at`, `planned_from`, `planned_to`, `pickup`, `pickup_point`, `url`, `weight`, `dimensions`) |
-| `parcel_aggregator_parcel_status_changed` | A known parcel's `status` value changes | Same payload as above plus `old_status` and `new_status` |
-| `parcel_aggregator_parcel_delivery_time_changed` | A known parcel's `planned_from` or `planned_to` ends up with a non-null value that differs from the previous one. Value-to-null transitions are intentionally silent. | Same payload as above plus `old_planned_from`, `new_planned_from`, `old_planned_to`, `new_planned_to` |
-
-The carrier-specific `raw` payload is stripped from the event to keep it small. Inspect the source carrier's own event (e.g. `dhl_nl_parcel_status_changed`) if you need the raw payload.
-
-The aggregator does not introduce its own first-refresh suppression — that is the responsibility of each carrier integration. DHL already suppresses events on the very first refresh after start-up so you don't get a stampede of "registered" events for parcels that were already in your account before HA started; the aggregator inherits that behaviour.
+| `parcel_aggregator_parcel_registered` | A carrier announces a new parcel | The full parcel dict (see the table above) |
+| `parcel_aggregator_parcel_status_changed` | A known parcel's `status` value changes | Same payload plus `old_status` and `new_status` |
+| `parcel_aggregator_parcel_delivery_time_changed` | A known parcel's expected delivery time changes to a new value | Same payload plus `old_planned_from`, `new_planned_from`, `old_planned_to`, `new_planned_to` |
 
 See [`examples/automations/`](examples/automations/) for ready-to-paste carrier-agnostic event automations.
 
