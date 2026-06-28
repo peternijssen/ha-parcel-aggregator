@@ -151,14 +151,10 @@ Ready-to-paste carrier-agnostic automations live in [`examples/`](examples/).
 
 ### Community Lovelace cards
 
-The aggregator's bucket sensors pair well with the same third-party cards
-that work for the individual carrier integrations:
+Third-party cards that work with these sensors:
 
-- [jonisnet/hki-parcels-card](https://github.com/jonisnet/hki-parcels-card) — multi-carrier (PostNL, DHL, DPD) Home Kit-style card. Reads the per-carrier sensors directly, but is a natural companion to the aggregator's unified view.
-- [klaptafel/ha-package-tracker-card](https://github.com/klaptafel/ha-package-tracker-card) — purpose-built card for parcel integrations.
-
-Both are maintained by their respective authors — please raise UI issues
-in those repos.
+- [jonisnet/hki-parcels-card](https://github.com/jonisnet/hki-parcels-card)
+- [klaptafel/ha-package-tracker-card](https://github.com/klaptafel/ha-package-tracker-card)
 
 ## Known limitations
 
