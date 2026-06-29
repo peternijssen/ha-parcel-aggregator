@@ -80,6 +80,19 @@ re-propose these as improvements:
 - **Coordinator `config_entry=entry` kwarg** — passed to
   `super().__init__()`; `self.config_entry` provided by the base class.
 
+### Adopted in 1.2.0 — history pass-through (do not refactor away)
+
+- **Per-parcel `history`** (the opt-in carrier timeline) is a **top-level**
+  canonical field, so it survives `strip_raw()` (which only drops `raw`)
+  and flows through the aggregated `parcels` lists and the
+  re-emitted events **automatically** — no field-specific handling. Do
+  not add `history` to `strip_raw`'s drop set.
+- **Recorder:** the list sensors already exclude `parcels`; the
+  next-delivery sensor excludes its singular `parcel` attribute
+  (`_unrecorded_attributes = frozenset({"parcel"})`) so the potentially
+  large history never hits the recorder DB. `history` is `null` unless
+  the source carrier has its own history option enabled.
+
 ## What was deliberately skipped
 
 - **No `_attr_attribution`**: the aggregator does not talk to any single

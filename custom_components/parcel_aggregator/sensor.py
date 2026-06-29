@@ -111,6 +111,11 @@ class ParcelsNextDeliverySensor(
     _attr_has_entity_name = True
     _attr_translation_key = "next_delivery"
     _attr_device_class = SensorDeviceClass.TIMESTAMP
+    # The single ``parcel`` dict carries the full carrier parcel shape —
+    # including the (potentially large) opt-in ``history`` timeline — so it
+    # stays out of the recorder, mirroring how the list sensors exclude
+    # ``parcels``.
+    _unrecorded_attributes = frozenset({"parcel"})
 
     def __init__(self, coordinator: ParcelAggregatorCoordinator) -> None:
         super().__init__(coordinator)

@@ -95,6 +95,24 @@ def test_next_delivery_sensor_handles_missing_data():
     assert sensor.extra_state_attributes == {"by_carrier": {}, "parcel": None}
 
 
+def test_next_delivery_sensor_keeps_parcel_out_of_recorder():
+    """The single ``parcel`` dict (which may carry a large history) is excluded
+    from the recorder, mirroring how the list sensors exclude ``parcels``."""
+    sensor = ParcelsNextDeliverySensor(_coordinator(None))
+    assert "parcel" in sensor._unrecorded_attributes
+
+
+def test_summary_sensors_keep_parcels_out_of_recorder():
+    coord = _coordinator(None)
+    for sensor in (
+        ParcelsIncomingSensor(coord),
+        ParcelsOutgoingSensor(coord),
+        ParcelsDeliveredSensor(coord),
+        ParcelsAwaitingPickupSensor(coord),
+    ):
+        assert "parcels" in sensor._unrecorded_attributes
+
+
 def test_sensors_share_aggregator_device_identifiers():
     """All summary sensors and the next-delivery sensor sit under one device."""
     coord = _coordinator(None)

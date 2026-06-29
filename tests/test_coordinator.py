@@ -153,6 +153,24 @@ def test_strip_raw_is_noop_when_raw_missing():
     assert strip_raw(parcel) == parcel
 
 
+def test_strip_raw_keeps_top_level_history():
+    """The opt-in history timeline is a top-level field, so it survives
+    strip_raw() and flows through the aggregator unchanged."""
+    history = [{"timestamp": "2026-06-24T17:23:13Z", "status": "delivered", "raw_status": "DELIVERED"}]
+    parcel = {**_parcel(), "history": history}
+    stripped = strip_raw(parcel)
+    assert "raw" not in stripped
+    assert stripped["history"] == history
+
+
+def test_next_delivery_keeps_history_on_the_parcel():
+    history = [{"timestamp": "2026-06-20T09:00:00Z", "status": "in_transit", "raw_status": "PARCEL_SORTED_AT_HUB"}]
+    parcel = {**_parcel(planned_from="2026-06-20T09:00:00Z"), "history": history}
+    result = next_delivery_from([parcel])
+    assert result["parcel"]["history"] == history
+    assert "raw" not in result["parcel"]
+
+
 # ---------------------------------------------------------------------------
 # sort_parcels_by_ts
 # ---------------------------------------------------------------------------

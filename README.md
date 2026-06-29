@@ -113,6 +113,7 @@ The `parcels` attribute on each summary sensor contains every parcel from every 
 | `url` | string \| null | Deep link to the parcel's tracking page |
 | `weight` | float \| null | Parcel weight in kilograms. May be `null` depending on what the carrier exposes. |
 | `dimensions` | dict \| null | Parcel dimensions in centimeters: `{length, width, height, text}` where `text` is a pre-formatted `"L x W x H cm"` string. May be `null` depending on the carrier. |
+| `history` | list \| null | Ordered status timeline (oldest → newest), each entry `{timestamp, status, raw_status}`. `null` unless the source carrier integration has its **Parcel history** option enabled — it is opt-in and off by default on each carrier. |
 
 The carrier-specific `raw` payload is omitted to keep attribute size small. Open the per-carrier sensor if you need the original payload.
 
