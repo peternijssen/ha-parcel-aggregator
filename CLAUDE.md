@@ -93,6 +93,23 @@ re-propose these as improvements:
   large history never hits the recorder DB. `history` is `null` unless
   the source carrier has its own history option enabled.
 
+### Adopted in 1.3.0 — combined calendar (do not refactor away)
+
+- **Combined deliveries `calendar`** (`Platform.CALENDAR` in `PLATFORMS`,
+  `calendar.py`). One `ParcelAggregatorCalendar` on the aggregator device,
+  unique_id `{DOMAIN}_deliveries`, `translation_key="deliveries"`.
+  Read-only view over the already-merged `coordinator.data["incoming"]
+  ["parcels"]` — **no own polling**, enabled by default. One
+  `CalendarEvent` per active incoming parcel with a `planned_from`; `end`
+  is `planned_to` or `planned_from + 1h`. Summary is **carrier-prefixed**
+  (`"DHL: <sender>"`) and `uid` is `{carrier}_{barcode}` so the merged
+  agenda stays unambiguous across carriers. This is the cross-carrier
+  calendar; the per-carrier integrations each ship their own single-account
+  one.
+- **README stays lean:** the calendar is **not** documented in the README
+  (user feedback) even though the sensors are — it is discoverable in the
+  HA UI. CLAUDE.md documents it here.
+
 ## What was deliberately skipped
 
 - **No `_attr_attribution`**: the aggregator does not talk to any single

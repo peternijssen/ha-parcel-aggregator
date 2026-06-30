@@ -12,6 +12,11 @@
     }
   },
   "entity": {
+    "calendar": {
+      "deliveries": {
+        "name": "Bezorgingen"
+      }
+    },
     "sensor": {
       "incoming": {
         "name": "Binnenkomend",

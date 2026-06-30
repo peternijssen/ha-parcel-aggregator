@@ -1,5 +1,10 @@
 {
   "entity": {
+    "calendar": {
+      "deliveries": {
+        "default": "mdi:truck-delivery-outline"
+      }
+    },
     "sensor": {
       "incoming": {
         "default": "mdi:package-variant-closed"

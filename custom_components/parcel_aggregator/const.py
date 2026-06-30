@@ -5,7 +5,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "parcel_aggregator"
 
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.CALENDAR, Platform.SENSOR]
 
 
 class ParcelStatus(StrEnum):
