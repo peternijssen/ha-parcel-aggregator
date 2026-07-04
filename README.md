@@ -3,8 +3,6 @@
 [![Release](https://img.shields.io/github/v/release/peternijssen/ha-parcel-aggregator.svg)](https://github.com/peternijssen/ha-parcel-aggregator/releases)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Downloads](https://img.shields.io/github/downloads/peternijssen/ha-parcel-aggregator/total.svg)](https://github.com/peternijssen/ha-parcel-aggregator/releases)
-
 A Home Assistant custom integration that rolls up parcel counts, next-delivery timestamps, and parcel-event notifications from the DHL, PostNL, DPD and GLS integrations into a single set of sensors and a single unified event stream.
 
 ## Contents
