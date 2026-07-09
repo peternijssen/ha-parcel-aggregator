@@ -15,6 +15,9 @@
       "delivered": {
         "default": "mdi:package-variant"
       },
+      "outgoing_delivered": {
+        "default": "mdi:package-variant"
+      },
       "awaiting_pickup": {
         "default": "mdi:store-clock"
       },

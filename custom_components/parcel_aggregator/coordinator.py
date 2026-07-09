@@ -296,7 +296,11 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for ent in registry.entities.values():
             if ent.platform not in KNOWN_CARRIERS:
                 continue
-            for suffix, bucket in SOURCE_SUFFIXES.items():
+            # Longest suffix first: ``_outgoing_delivered_parcels`` also ends
+            # with ``_delivered_parcels``, so the specific match must win.
+            for suffix, bucket in sorted(
+                SOURCE_SUFFIXES.items(), key=lambda kv: len(kv[0]), reverse=True
+            ):
                 if ent.unique_id.endswith(suffix):
                     self._sources[bucket][ent.entity_id] = ent.platform
                     break
@@ -315,6 +319,9 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         delivered_parcels = sort_parcels_by_ts(
             self._collect_parcels("delivered"), "delivered_at", descending=True
         )
+        outgoing_delivered_parcels = sort_parcels_by_ts(
+            self._collect_parcels("outgoing_delivered"), "delivered_at", descending=True
+        )
         return {
             "incoming": {
                 **self._sum_bucket("incoming"),
@@ -327,6 +334,10 @@ class ParcelAggregatorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "delivered": {
                 **self._sum_bucket("delivered"),
                 "parcels": [strip_raw(p) for p in delivered_parcels],
+            },
+            "outgoing_delivered": {
+                **self._sum_bucket("outgoing_delivered"),
+                "parcels": [strip_raw(p) for p in outgoing_delivered_parcels],
             },
             "next_delivery": next_delivery_from(incoming_parcels),
             "awaiting_pickup": awaiting_pickup_from(incoming_parcels),

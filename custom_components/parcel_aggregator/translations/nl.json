@@ -19,15 +19,19 @@
     },
     "sensor": {
       "incoming": {
-        "name": "Binnenkomend",
+        "name": "Inkomende pakketten",
         "unit_of_measurement": "pakketten"
       },
       "outgoing": {
-        "name": "Uitgaand",
-        "unit_of_measurement": "zendingen"
+        "name": "Uitgaande pakketten",
+        "unit_of_measurement": "pakketten"
       },
       "delivered": {
-        "name": "Bezorgd",
+        "name": "Bezorgde pakketten",
+        "unit_of_measurement": "pakketten"
+      },
+      "outgoing_delivered": {
+        "name": "Uitgaande bezorgde pakketten",
         "unit_of_measurement": "pakketten"
       },
       "awaiting_pickup": {
@@ -35,7 +39,7 @@
         "unit_of_measurement": "pakketten"
       },
       "next_delivery": {
-        "name": "Eerstvolgende bezorging"
+        "name": "Volgende bezorging"
       }
     }
   },

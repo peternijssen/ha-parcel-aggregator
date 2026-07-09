@@ -131,13 +131,16 @@ re-propose these as improvements:
   Do NOT refactor the discovery onto every poll/compute; the registry
   listener is the only re-discovery trigger.
 - **Source contract**: `KNOWN_CARRIERS` maps HA integration domains to
-  human labels; `SOURCE_SUFFIXES` maps `unique_id` suffixes to buckets;
+  human labels; `SOURCE_SUFFIXES` maps `unique_id` suffixes to buckets
+  (`incoming` / `outgoing` / `delivered` / `outgoing_delivered`);
   `ATTR_KEY_BY_BUCKET` maps buckets to the attribute key on the source
-  sensor (`parcels` vs `shipments`). All three live in `const.py` and
-  must stay in sync — adding a new carrier means updating all three.
-- **No tags published yet**: this repo lives on `main` only; HACS users
-  pull directly from `main`. Version in `manifest.json` is informative,
-  not load-bearing for HACS.
+  sensor (always `parcels`). All three live in `const.py` and must stay
+  in sync — adding a new carrier means updating all three.
+- **Longest-suffix matching in `_discover`**: `_outgoing_delivered_parcels`
+  also ends with `_delivered_parcels`, so discovery iterates the suffixes
+  **longest-first** and breaks on the first match. Do not revert to plain
+  dict-order iteration — delivered outgoing parcels would be mis-bucketed
+  as incoming delivered.
 
 ## Running tests
 

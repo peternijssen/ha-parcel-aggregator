@@ -58,10 +58,15 @@ EVENT_PARCEL_STATUS_CHANGED = f"{DOMAIN}_parcel_status_changed"
 EVENT_PARCEL_DELIVERY_TIME_CHANGED = f"{DOMAIN}_parcel_delivery_time_changed"
 
 # Source sensor unique_id suffix → aggregation bucket name.
+#
+# NB: ``_outgoing_delivered_parcels`` also ends with ``_delivered_parcels``,
+# so matching MUST prefer the longest suffix (see ``_discover``) or delivered
+# outgoing parcels would be mis-bucketed as incoming delivered.
 SOURCE_SUFFIXES: dict[str, str] = {
     "_incoming_parcels": "incoming",
     "_outgoing_parcels": "outgoing",
     "_delivered_parcels": "delivered",
+    "_outgoing_delivered_parcels": "outgoing_delivered",
 }
 
 # Attribute key on each source sensor that holds the parcel list.
@@ -72,4 +77,5 @@ ATTR_KEY_BY_BUCKET: dict[str, str] = {
     "incoming": "parcels",
     "outgoing": "parcels",
     "delivered": "parcels",
+    "outgoing_delivered": "parcels",
 }

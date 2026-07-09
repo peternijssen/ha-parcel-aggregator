@@ -1,6 +1,8 @@
 """Tests for the Parcel Aggregator's parsing and aggregation helpers."""
 from datetime import datetime, timezone
 
+import pytest
+
 from custom_components.parcel_aggregator.coordinator import (
     aggregate_sum,
     awaiting_pickup_from,
@@ -306,3 +308,44 @@ def test_awaiting_pickup_strips_raw_from_list():
     parcels = [_parcel(pickup=True, raw={"big": "payload"})]
     result = awaiting_pickup_from(parcels)
     assert "raw" not in result["parcels"][0]
+
+
+# ---------------------------------------------------------------------------
+# Source discovery — bucket assignment by unique_id suffix
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_discover_buckets_sources_by_suffix(hass):
+    """A carrier's outgoing-delivered sensor must land in its own bucket, not
+    in ``delivered`` — its unique_id also ends with ``_delivered_parcels``."""
+    from homeassistant.helpers import entity_registry as er
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    from custom_components.parcel_aggregator.const import DOMAIN
+    from custom_components.parcel_aggregator.coordinator import (
+        ParcelAggregatorCoordinator,
+    )
+
+    reg = er.async_get(hass)
+
+    def _add(unique_id: str) -> str:
+        return reg.async_get_or_create("sensor", "dhl_nl", unique_id).entity_id
+
+    incoming = _add("acc_incoming_parcels")
+    outgoing = _add("acc_outgoing_parcels")
+    delivered = _add("acc_delivered_parcels")
+    outgoing_delivered = _add("acc_outgoing_delivered_parcels")
+
+    entry = MockConfigEntry(domain=DOMAIN, unique_id=DOMAIN, data={})
+    entry.add_to_hass(hass)
+    coordinator = ParcelAggregatorCoordinator(hass, entry)
+    coordinator._discover()
+
+    assert incoming in coordinator._sources["incoming"]
+    assert outgoing in coordinator._sources["outgoing"]
+    assert delivered in coordinator._sources["delivered"]
+    assert outgoing_delivered in coordinator._sources["outgoing_delivered"]
+    # Regression: the outgoing-delivered sensor must NOT be swallowed by the
+    # shorter ``_delivered_parcels`` suffix.
+    assert outgoing_delivered not in coordinator._sources["delivered"]

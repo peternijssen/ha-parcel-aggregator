@@ -7,6 +7,7 @@ from custom_components.parcel_aggregator.sensor import (
     ParcelsDeliveredSensor,
     ParcelsIncomingSensor,
     ParcelsNextDeliverySensor,
+    ParcelsOutgoingDeliveredSensor,
     ParcelsOutgoingSensor,
 )
 
@@ -45,6 +46,25 @@ def test_outgoing_sensor_exposes_parcel_list_on_parcels_key():
     # so templates can iterate uniformly across incoming / outgoing / delivered.
     assert attrs["parcels"] == parcels
     assert "shipments" not in attrs
+
+
+def test_outgoing_delivered_sensor_reports_total_and_parcels():
+    parcels = [{"barcode": "R1"}, {"barcode": "R2"}]
+    sensor = ParcelsOutgoingDeliveredSensor(
+        _coordinator({
+            "outgoing_delivered": {"total": 2, "by_carrier": {"DPD": 2}, "parcels": parcels}
+        })
+    )
+    assert sensor.native_value == 2
+    attrs = sensor.extra_state_attributes
+    assert attrs["by_carrier"] == {"DPD": 2}
+    assert attrs["parcels"] == parcels
+
+
+def test_outgoing_delivered_sensor_zero_when_no_data():
+    sensor = ParcelsOutgoingDeliveredSensor(_coordinator(None))
+    assert sensor.native_value == 0
+    assert sensor.extra_state_attributes == {"by_carrier": {}, "parcels": []}
 
 
 def test_delivered_sensor_zero_when_no_data():

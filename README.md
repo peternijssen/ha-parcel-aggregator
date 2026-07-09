@@ -91,9 +91,10 @@ Standard HA removal applies: **Settings → Devices & Services → Parcel Aggreg
 
 | Entity | Description |
 |--------|-------------|
-| `sensor.parcel_aggregator_incoming` | Sum of active incoming parcels across all carriers; merged parcel list on the `parcels` attribute |
-| `sensor.parcel_aggregator_outgoing` | Sum of active outgoing parcels across all carriers; merged list on the `parcels` attribute |
-| `sensor.parcel_aggregator_delivered` | Sum of recently delivered parcels across all carriers (uses each carrier's own filter window); merged list on `parcels` |
+| `sensor.parcel_aggregator_incoming_parcels` | Sum of active incoming parcels across all carriers; merged parcel list on the `parcels` attribute |
+| `sensor.parcel_aggregator_outgoing_parcels` | Sum of active outgoing parcels across all carriers; merged list on the `parcels` attribute |
+| `sensor.parcel_aggregator_delivered_parcels` | Sum of recently delivered incoming parcels across all carriers (uses each carrier's own filter window); merged list on `parcels` |
+| `sensor.parcel_aggregator_outgoing_delivered_parcels` | Sum of recently delivered outgoing parcels across all carriers; merged list on `parcels` |
 | `sensor.parcel_aggregator_awaiting_pickup` | Sum of active incoming parcels destined for a pickup point (ServicePoint / PostNL Point / ParcelShop); merged list on `parcels` |
 | `sensor.parcel_aggregator_next_delivery` | Earliest expected delivery datetime across all carriers; the matching parcel on the `parcel` attribute |
 
