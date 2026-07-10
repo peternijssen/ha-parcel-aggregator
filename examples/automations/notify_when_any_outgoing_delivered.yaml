@@ -1,0 +1,22 @@
+# Notify when an outgoing parcel from ANY carrier (something you sent, e.g.
+# a webshop return) reaches the recipient, so you can watch for the refund.
+# One automation covers every carrier via the aggregator's unified event.
+
+alias: "Parcels: any outgoing parcel delivered"
+description: Notify when an outgoing/return parcel from any carrier is delivered.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: parcel_aggregator_outgoing_parcel_delivered
+
+actions:
+  - action: notify.mobile_app
+    data:
+      title: "Verzending bezorgd ({{ trigger.event.data.carrier }})"
+      message: >-
+        {{ trigger.event.data.receiver or trigger.event.data.barcode }} is
+        aangekomen.
+      data:
+        clickAction: "{{ trigger.event.data.url }}"

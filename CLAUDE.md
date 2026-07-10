@@ -63,14 +63,16 @@ re-propose these as improvements:
   `status: out_for_delivery` regardless of source.
 - **Carrier event re-emit layer** — the coordinator subscribes to every
   `<prefix>_parcel_registered` / `<prefix>_parcel_status_changed` /
-  `<prefix>_parcel_delivery_time_changed` event published by carriers
-  listed in `CARRIER_EVENT_PREFIXES` and re-fires them as
-  `parcel_aggregator_parcel_registered` /
-  `parcel_aggregator_parcel_status_changed` /
-  `parcel_aggregator_parcel_delivery_time_changed`. Carrier-specific
-  `raw` payload is stripped to keep events small. To onboard a new
-  carrier that ships the canonical event contract, add its HA domain
-  to `CARRIER_EVENT_PREFIXES` — no other change needed.
+  `<prefix>_parcel_delivery_time_changed` **and** the outgoing pair
+  `<prefix>_outgoing_parcel_status_changed` /
+  `<prefix>_outgoing_parcel_delivered` published by carriers listed in
+  `CARRIER_EVENT_PREFIXES`, re-firing each under the matching
+  `parcel_aggregator_*` name (`EVENT_*` constants in `const.py`).
+  Carrier-specific `raw` payload is stripped to keep events small. To
+  onboard a new carrier that ships the canonical event contract, add its HA
+  domain to `CARRIER_EVENT_PREFIXES` — no other change needed. GLS is in the
+  prefix list but never fires the outgoing pair (account-less, no outgoing);
+  subscribing to an event that never fires is harmless.
 - **Translated unit of measurement** — `entity.sensor.<key>.unit_of_measurement`
   in strings/translations. `_attr_native_unit_of_measurement` is
   intentionally absent from the sensor classes. Dutch users see

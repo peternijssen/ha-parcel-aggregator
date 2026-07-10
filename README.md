@@ -151,6 +151,8 @@ Unified events on the HA event bus let one automation react to changes from any 
 | `parcel_aggregator_parcel_registered` | A carrier announces a new parcel | The full parcel dict (see the table above) |
 | `parcel_aggregator_parcel_status_changed` | A known parcel's `status` value changes | Same payload plus `old_status` and `new_status` |
 | `parcel_aggregator_parcel_delivery_time_changed` | A known parcel's expected delivery time changes to a new value | Same payload plus `old_planned_from`, `new_planned_from`, `old_planned_to`, `new_planned_to` |
+| `parcel_aggregator_outgoing_parcel_status_changed` | A known **outgoing** parcel (something you sent) changes status, except the final hop to delivered | Same payload plus `old_status` and `new_status` |
+| `parcel_aggregator_outgoing_parcel_delivered` | An outgoing parcel reaches the recipient | The full parcel dict |
 
 See [`examples/automations/`](examples/automations/) for ready-to-paste carrier-agnostic event automations.
 

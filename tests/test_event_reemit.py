@@ -4,6 +4,8 @@ import pytest
 from custom_components.parcel_aggregator.const import (
     CARRIER_EVENT_PREFIXES,
     DOMAIN,
+    EVENT_OUTGOING_PARCEL_DELIVERED,
+    EVENT_OUTGOING_PARCEL_STATUS_CHANGED,
     EVENT_PARCEL_DELIVERY_TIME_CHANGED,
     EVENT_PARCEL_REGISTERED,
     EVENT_PARCEL_STATUS_CHANGED,
@@ -176,6 +178,65 @@ async def test_dhl_delivery_time_changed_event_is_reemitted_unified(hass):
     payload = captured[0].data
     assert payload["barcode"] == "BARCODE-3"
     assert payload["new_planned_from"] == "2026-06-27T14:00:00+02:00"
+    assert "raw" not in payload
+
+
+@pytest.mark.asyncio
+async def test_postnl_outgoing_status_changed_is_reemitted_unified(hass):
+    """A <carrier>_outgoing_parcel_status_changed re-emits under the unified name."""
+    entry = _add_entry(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    captured = _capture(hass, EVENT_OUTGOING_PARCEL_STATUS_CHANGED)
+
+    hass.bus.async_fire(
+        "postnl_outgoing_parcel_status_changed",
+        {
+            "carrier": "PostNL",
+            "barcode": "SENT-1",
+            "status": ParcelStatus.IN_TRANSIT,
+            "old_status": ParcelStatus.REGISTERED,
+            "new_status": ParcelStatus.IN_TRANSIT,
+            "raw": {"big": "payload"},
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert len(captured) == 1
+    payload = captured[0].data
+    assert payload["carrier"] == "PostNL"
+    assert payload["barcode"] == "SENT-1"
+    assert payload["old_status"] == ParcelStatus.REGISTERED
+    assert payload["new_status"] == ParcelStatus.IN_TRANSIT
+    assert "raw" not in payload
+
+
+@pytest.mark.asyncio
+async def test_dhl_outgoing_delivered_is_reemitted_unified(hass):
+    """A <carrier>_outgoing_parcel_delivered re-emits under the unified name."""
+    entry = _add_entry(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    captured = _capture(hass, EVENT_OUTGOING_PARCEL_DELIVERED)
+
+    hass.bus.async_fire(
+        "dhl_nl_outgoing_parcel_delivered",
+        {
+            "carrier": "DHL",
+            "barcode": "RETURN-1",
+            "status": ParcelStatus.DELIVERED,
+            "raw": {"big": "payload"},
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert len(captured) == 1
+    payload = captured[0].data
+    assert payload["carrier"] == "DHL"
+    assert payload["barcode"] == "RETURN-1"
+    assert payload["status"] == ParcelStatus.DELIVERED
     assert "raw" not in payload
 
 
