@@ -304,3 +304,32 @@ async def test_gls_registered_event_is_reemitted_unified(hass):
     assert payload["barcode"] == "0085105093278"
     assert payload["status"] == ParcelStatus.REGISTERED
     assert "raw" not in payload
+
+
+@pytest.mark.asyncio
+async def test_dragonfly_registered_event_is_reemitted_unified(hass):
+    """A dragonfly_parcel_registered event triggers parcel_aggregator_parcel_registered."""
+    entry = _add_entry(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    captured = _capture(hass, EVENT_PARCEL_REGISTERED)
+
+    hass.bus.async_fire(
+        "dragonfly_parcel_registered",
+        {
+            "carrier": "Dragonfly",
+            "barcode": "INTLCMB2C000123456",
+            "status": ParcelStatus.REGISTERED,
+            "raw_status": "Zending ontvangen",
+            "raw": {"big": "payload"},
+        },
+    )
+    await hass.async_block_till_done()
+
+    assert len(captured) == 1
+    payload = captured[0].data
+    assert payload["carrier"] == "Dragonfly"
+    assert payload["barcode"] == "INTLCMB2C000123456"
+    assert payload["status"] == ParcelStatus.REGISTERED
+    assert "raw" not in payload

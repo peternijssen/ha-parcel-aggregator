@@ -35,6 +35,7 @@ KNOWN_CARRIERS: dict[str, str] = {
     "postnl": "PostNL",
     "dpd": "DPD",
     "gls": "GLS",
+    "dragonfly": "Dragonfly",
 }
 
 # Per-carrier event-name prefix on the HA event bus. Carriers that have
@@ -51,6 +52,7 @@ CARRIER_EVENT_PREFIXES: dict[str, str] = {
     "dpd": "dpd",
     "postnl": "postnl",
     "gls": "gls",
+    "dragonfly": "dragonfly",
 }
 
 EVENT_PARCEL_REGISTERED = f"{DOMAIN}_parcel_registered"

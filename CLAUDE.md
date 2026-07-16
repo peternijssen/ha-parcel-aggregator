@@ -1,7 +1,8 @@
 # Working in this repository
 
 This is a Home Assistant custom integration that rolls up parcel counts
-and next-delivery timestamps from the DHL, PostNL, DPD and GLS integrations
+and next-delivery timestamps from the DHL, PostNL, DPD, GLS and Dragonfly
+integrations
 into a single set of sensors. Distributed via HACS; not part of HA core.
 
 ## Always consult HA developer documentation
@@ -57,7 +58,7 @@ re-propose these as improvements:
 ### Adopted in 1.0.0 (do not refactor away)
 
 - **Canonical `ParcelStatus` enum** in `const.py` — mirrors the enum
-  the per-carrier integrations (DHL, DPD, PostNL, GLS) publish on the
+  the per-carrier integrations (DHL, DPD, PostNL, GLS, Dragonfly) publish on the
   `status` field of each normalised parcel. Kept in sync across all
   four repositories so cross-carrier automations can target
   `status: out_for_delivery` regardless of source.
@@ -71,7 +72,8 @@ re-propose these as improvements:
   Carrier-specific `raw` payload is stripped to keep events small. To
   onboard a new carrier that ships the canonical event contract, add its HA
   domain to `CARRIER_EVENT_PREFIXES` — no other change needed. GLS is in the
-  prefix list but never fires the outgoing pair (account-less, no outgoing);
+  prefix list but never fires the outgoing pair (account-less, no outgoing),
+  and the same holds for Dragonfly;
   subscribing to an event that never fires is harmless.
 - **Translated unit of measurement** — `entity.sensor.<key>.unit_of_measurement`
   in strings/translations. `_attr_native_unit_of_measurement` is
