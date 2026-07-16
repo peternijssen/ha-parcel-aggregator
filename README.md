@@ -51,7 +51,7 @@ Carriers you have not installed are silently skipped. If you add a carrier integ
 | PostNL | [ha-parcel-integrations/ha-postnl](https://github.com/ha-parcel-integrations/ha-postnl) |
 | DPD | [ha-parcel-integrations/ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) |
 | GLS | [ha-parcel-integrations/ha-gls](https://github.com/ha-parcel-integrations/ha-gls) |
-| Dragonfly | [HummelsTech/ha-dragonfly](https://github.com/HummelsTech/ha-dragonfly) |
+| Dragonfly | [ha-parcel-integrations/ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) |
 
 ## Requirements
 
