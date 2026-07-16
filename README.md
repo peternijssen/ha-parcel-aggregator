@@ -1,6 +1,6 @@
 # Parcel Aggregator
 
-[![Release](https://img.shields.io/github/v/release/peternijssen/ha-parcel-aggregator.svg)](https://github.com/peternijssen/ha-parcel-aggregator/releases)
+[![Release](https://img.shields.io/github/v/release/ha-parcel-integrations/ha-parcel-aggregator.svg)](https://github.com/ha-parcel-integrations/ha-parcel-aggregator/releases)
 [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -47,10 +47,10 @@ Carriers you have not installed are silently skipped. If you add a carrier integ
 
 | Integration | Repository |
 |-------------|------------|
-| DHL NL | [peternijssen/ha-dhl-nl](https://github.com/peternijssen/ha-dhl-nl) |
-| PostNL | [peternijssen/ha-postnl](https://github.com/peternijssen/ha-postnl) |
-| DPD | [peternijssen/ha-dpd](https://github.com/peternijssen/ha-dpd) |
-| GLS | [peternijssen/ha-gls](https://github.com/peternijssen/ha-gls) |
+| DHL NL | [ha-parcel-integrations/ha-dhl-nl](https://github.com/ha-parcel-integrations/ha-dhl-nl) |
+| PostNL | [ha-parcel-integrations/ha-postnl](https://github.com/ha-parcel-integrations/ha-postnl) |
+| DPD | [ha-parcel-integrations/ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) |
+| GLS | [ha-parcel-integrations/ha-gls](https://github.com/ha-parcel-integrations/ha-gls) |
 | Dragonfly | [HummelsTech/ha-dragonfly](https://github.com/HummelsTech/ha-dragonfly) |
 
 ## Requirements
