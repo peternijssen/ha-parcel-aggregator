@@ -12,6 +12,10 @@ Examples cover two patterns:
 | [`automations/`](automations/) | YAML automation blueprints — paste into `automations.yaml` or the Automation editor in **raw editor** mode. |
 | [`dashboards/`](dashboards/) | Lovelace card snippets — paste into the YAML editor of any card. |
 
+A third pattern sits *upstream* of the aggregator:
+
+- **Feeding carriers from e-mail** — code-based carriers (GLS, Dragonfly) need each tracking number registered before they can track it. [`automations/track_parcels_from_email.yaml`](automations/track_parcels_from_email.yaml) extracts tracking numbers from incoming shipping mails (core IMAP integration + regex, with an optional AI fallback) and registers them automatically; setup guide and pitfalls in [`automations/track_parcels_from_email.md`](automations/track_parcels_from_email.md).
+
 ## Events used in the examples
 
 The aggregator's coordinator re-emits every carrier's per-parcel events
