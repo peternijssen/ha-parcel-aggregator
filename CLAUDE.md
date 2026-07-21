@@ -1,7 +1,7 @@
 # Working in this repository
 
 This is a Home Assistant custom integration that rolls up parcel counts
-and next-delivery timestamps from the DHL, PostNL, DPD, GLS and Dragonfly
+and next-delivery timestamps from the DHL, PostNL, DPD, GLS, Dragonfly and Trunkrs
 integrations
 into a single set of sensors. Distributed via HACS; not part of HA core.
 
@@ -58,7 +58,7 @@ re-propose these as improvements:
 ### Adopted in 1.0.0 (do not refactor away)
 
 - **Canonical `ParcelStatus` enum** in `const.py` — mirrors the enum
-  the per-carrier integrations (DHL, DPD, PostNL, GLS, Dragonfly) publish on the
+  the per-carrier integrations (DHL, DPD, PostNL, GLS, Dragonfly, Trunkrs) publish on the
   `status` field of each normalised parcel. Kept in sync across all
   four repositories so cross-carrier automations can target
   `status: out_for_delivery` regardless of source.
@@ -74,8 +74,14 @@ re-propose these as improvements:
   onboard a new carrier that ships the canonical event contract, add its HA
   domain to `CARRIER_EVENT_PREFIXES` — no other change needed. GLS is in the
   prefix list but never fires the outgoing pair (account-less, no outgoing),
-  and the same holds for Dragonfly;
+  and the same holds for Dragonfly, Trunkrs and Cainiao;
   subscribing to an event that never fires is harmless.
+- **`cainiao` is registered but not documented in the README.** It is in
+  `KNOWN_CARRIERS` and `CARRIER_EVENT_PREFIXES` so it aggregates the moment it
+  is installed, but its repository is not public yet, so listing it in the
+  README would mean shipping a dead link. Move it into the README table once
+  the repo exists. A carrier that is registered but not installed is silently
+  skipped, so this costs nothing in the meantime.
 - **Translated unit of measurement** — `entity.sensor.<key>.unit_of_measurement`
   in strings/translations. `_attr_native_unit_of_measurement` is
   intentionally absent from the sensor classes. Dutch users see
