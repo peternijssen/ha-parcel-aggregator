@@ -6,7 +6,7 @@
 
 > 💬 Questions or feedback? Join the discussion on the [Home Assistant community](https://community.home-assistant.io/t/packages-postnl-dhl-nl-dpd-and-gls-parcel-integration/112433/).
 
-A Home Assistant custom integration that rolls up parcel counts, next-delivery timestamps, and parcel-event notifications from the DHL, PostNL, DPD, GLS, Dragonfly, Trunkrs and Cainiao integrations into a single set of sensors and a single unified event stream.
+A Home Assistant custom integration that rolls up parcel counts, next-delivery timestamps, and parcel-event notifications from every installed [ha-parcel-integrations](https://github.com/ha-parcel-integrations) carrier into a single set of sensors and a single unified event stream.
 
 ## Contents
 
@@ -29,7 +29,7 @@ A Home Assistant custom integration that rolls up parcel counts, next-delivery t
 
 ## Use cases
 
-- A single dashboard card that shows how many parcels you expect today across DHL, PostNL, DPD, GLS, Dragonfly, Trunkrs and Cainiao without juggling per-carrier sensors.
+- A single dashboard card that shows how many parcels you expect today across every carrier without juggling per-carrier sensors.
 - Carrier-agnostic automations — write one trigger like *"when any parcel is out for delivery"* instead of three per-carrier copies.
 - Automations like *"announce when a parcel is awaiting pickup at a service point"* or *"remind me an hour before the earliest delivery"* that you write once and they cover every carrier.
 - A unified parcel list you can iterate over in templates or custom cards.
@@ -45,15 +45,11 @@ Carriers you have not installed are silently skipped. If you add a carrier integ
 
 ## Supported sources
 
-| Integration | Repository |
-|-------------|------------|
-| DHL NL | [ha-parcel-integrations/ha-dhl-nl](https://github.com/ha-parcel-integrations/ha-dhl-nl) |
-| PostNL | [ha-parcel-integrations/ha-postnl](https://github.com/ha-parcel-integrations/ha-postnl) |
-| DPD | [ha-parcel-integrations/ha-dpd](https://github.com/ha-parcel-integrations/ha-dpd) |
-| GLS | [ha-parcel-integrations/ha-gls](https://github.com/ha-parcel-integrations/ha-gls) |
-| Dragonfly | [ha-parcel-integrations/ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) |
-| Trunkrs | [ha-parcel-integrations/ha-trunkrs](https://github.com/ha-parcel-integrations/ha-trunkrs) |
-| Cainiao | [ha-parcel-integrations/ha-cainiao](https://github.com/ha-parcel-integrations/ha-cainiao) |
+The aggregator reads every carrier integration in the
+[**ha-parcel-integrations**](https://github.com/ha-parcel-integrations) family —
+see that page for the current, authoritative carrier list. Any supported carrier
+you have installed is picked up automatically; carriers you have not installed
+are silently skipped. New carriers work without an update here.
 
 ## Requirements
 
@@ -109,7 +105,7 @@ The `parcels` attribute on each summary sensor contains every parcel from every 
 
 | Key | Type | Meaning |
 |---|---|---|
-| `carrier` | string | `"DHL"`, `"PostNL"`, `"DPD"`, `"GLS"`, `"Dragonfly"`, `"Trunkrs"` or `"Cainiao"` |
+| `carrier` | string | The source carrier's display name (e.g. `"DHL"`, `"PostNL"`, …) — one value per installed carrier |
 | `barcode` | string | Parcel tracking number |
 | `sender` | string \| null | Sender name (e.g. webshop) |
 | `receiver` | string \| null | Recipient name |
@@ -178,7 +174,7 @@ Third-party cards that work with these sensors:
 
 ## Disclaimer
 
-This is an independent, community-built project with no affiliation, endorsement, or connection to DHL, PostNL, DPD, GLS, Dragonfly Shipping, Trunkrs, Cainiao, or any of their subsidiaries.
+This is an independent, community-built project with no affiliation, endorsement, or connection to any parcel carrier or its subsidiaries.
 
 ## Contributing
 
