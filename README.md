@@ -6,7 +6,7 @@
 
 > 💬 Questions or feedback? Join the discussion on the [Home Assistant community](https://community.home-assistant.io/t/packages-postnl-dhl-nl-dpd-and-gls-parcel-integration/112433/).
 
-A Home Assistant custom integration that rolls up parcel counts, next-delivery timestamps, and parcel-event notifications from the DHL, PostNL, DPD, GLS, Dragonfly, Trunkrs and Cainiao integrations into a single set of sensors and a single unified event stream.
+A Home Assistant custom integration that rolls up parcel counts, next-delivery timestamps, and parcel-event notifications from the DHL, PostNL, DPD, GLS, Dragonfly, Trunkrs, Cainiao and Hermes integrations into a single set of sensors and a single unified event stream.
 
 ## Contents
 
@@ -29,7 +29,7 @@ A Home Assistant custom integration that rolls up parcel counts, next-delivery t
 
 ## Use cases
 
-- A single dashboard card that shows how many parcels you expect today across DHL, PostNL, DPD, GLS, Dragonfly, Trunkrs and Cainiao without juggling per-carrier sensors.
+- A single dashboard card that shows how many parcels you expect today across DHL, PostNL, DPD, GLS, Dragonfly, Trunkrs, Cainiao and Hermes without juggling per-carrier sensors.
 - Carrier-agnostic automations — write one trigger like *"when any parcel is out for delivery"* instead of three per-carrier copies.
 - Automations like *"announce when a parcel is awaiting pickup at a service point"* or *"remind me an hour before the earliest delivery"* that you write once and they cover every carrier.
 - A unified parcel list you can iterate over in templates or custom cards.
@@ -54,6 +54,7 @@ Carriers you have not installed are silently skipped. If you add a carrier integ
 | Dragonfly | [ha-parcel-integrations/ha-dragonfly](https://github.com/ha-parcel-integrations/ha-dragonfly) |
 | Trunkrs | [ha-parcel-integrations/ha-trunkrs](https://github.com/ha-parcel-integrations/ha-trunkrs) |
 | Cainiao | [ha-parcel-integrations/ha-cainiao](https://github.com/ha-parcel-integrations/ha-cainiao) |
+| Hermes | [ha-parcel-integrations/ha-hermes](https://github.com/ha-parcel-integrations/ha-hermes) |
 
 ## Requirements
 
@@ -109,7 +110,7 @@ The `parcels` attribute on each summary sensor contains every parcel from every 
 
 | Key | Type | Meaning |
 |---|---|---|
-| `carrier` | string | `"DHL"`, `"PostNL"`, `"DPD"`, `"GLS"`, `"Dragonfly"`, `"Trunkrs"` or `"Cainiao"` |
+| `carrier` | string | `"DHL"`, `"PostNL"`, `"DPD"`, `"GLS"`, `"Dragonfly"`, `"Trunkrs"`, `"Cainiao"` or `"Hermes"` |
 | `barcode` | string | Parcel tracking number |
 | `sender` | string \| null | Sender name (e.g. webshop) |
 | `receiver` | string \| null | Recipient name |
@@ -178,7 +179,7 @@ Third-party cards that work with these sensors:
 
 ## Disclaimer
 
-This is an independent, community-built project with no affiliation, endorsement, or connection to DHL, PostNL, DPD, GLS, Dragonfly Shipping, Trunkrs, Cainiao, or any of their subsidiaries.
+This is an independent, community-built project with no affiliation, endorsement, or connection to DHL, PostNL, DPD, GLS, Dragonfly Shipping, Trunkrs, Cainiao, Hermes, or any of their subsidiaries.
 
 ## Contributing
 
